@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TGGT Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="top-nav">
+        <h1>TGGT Viewer</h1>
+        <nav>
+            <a href="index.html" class="active">Gallery</a>
+            <a href="metrics.html">Metrics</a>
+        </nav>
+    </header>
+
+    <main class="gallery-container">
+        <div class="gallery-controls">
+            <div class="control-group">
+                <label>Filter:</label>
+                <select id="tag-filter">
+                    <option value="all">All</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <input type="text" id="search-box" placeholder="Search..." class="search-input">
+            </div>
+            <span id="gallery-count" style="color:#888; font-size:14px;"></span>
+        </div>
+
+        <div id="loading-state" class="loading-message">Loading...</div>
+        <div id="error-state" class="error-message" style="display: none;"></div>
+        <div id="gallery-grid" class="gallery-grid"></div>
+    </main>
+
+    <script src="js/gallery.js?v=13"></script>
+</body>
+</html>

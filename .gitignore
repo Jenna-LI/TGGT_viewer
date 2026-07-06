@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Large data directories
+results/
+results_backup/
+
+# Symlinks to external data
+source_data
+
+# Claude Code
+.claude/

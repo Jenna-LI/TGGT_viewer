@@ -1,0 +1,237 @@
+#!/bin/bash
+
+# Activate vggt conda environment
+source /home/chuanruo/anaconda3/etc/profile.d/conda.sh
+conda activate vggt
+
+CHECKPOINT="/home/chuanruo/vggt_train/training/logs/exp197/ckpts/checkpoint_190.pt"
+FRAMES="3,5,7,9,11,12,34,45,56,67,77,78,89,90"
+EPOCH=190
+OUTPUT="/home/chuanruo/TGGT_viewer/tggt-viewer/results"
+SCRIPT_DIR="/home/chuanruo/TGGT_viewer/tggt-viewer"
+NUM_PARALLEL=1  # Number of parallel jobs (reduced to avoid system overload)
+
+# Create a file with all data paths
+cat > /tmp/export_dirs.txt << 'EOF'
+/home/chuanruo/TGGT/out/air_conditioner_run_20260613_014414
+/home/chuanruo/TGGT/out/airplane_run_20260613_014414
+/home/chuanruo/TGGT/out/alarm_clock_run_20260613_014414
+/home/chuanruo/TGGT/out/alligator_run_20260613_014414
+/home/chuanruo/TGGT/out/almond_run_20260613_014414
+/home/chuanruo/TGGT/out/ambulance_run_20260613_014414
+/home/chuanruo/TGGT/out/amplifier_run_20260613_014414
+/home/chuanruo/TGGT/out/anklet_run_20260613_014414
+/home/chuanruo/TGGT/out/antenna_run_20260613_014414
+/home/chuanruo/TGGT/out/apple_run_20260613_014414
+/home/chuanruo/TGGT/out/apron_run_20260613_014414
+/home/chuanruo/TGGT/out/arctic_(type_of_shoe)_run_20260613_014414
+/home/chuanruo/TGGT/out/armband_run_20260613_014414
+/home/chuanruo/TGGT/out/armchair_run_20260613_014414
+/home/chuanruo/TGGT/out/armoire_run_20260613_014414
+/home/chuanruo/TGGT/out/armor_run_20260613_014414
+/home/chuanruo/TGGT/out/army_tank_run_20260613_014414
+/home/chuanruo/TGGT/out/artichoke_run_20260613_014414
+/home/chuanruo/TGGT/out/asparagus_run_20260613_014414
+/home/chuanruo/TGGT/out/automatic_washer_run_20260613_014414
+/home/chuanruo/TGGT/out/award_run_20260613_014414
+/home/chuanruo/TGGT/out/awning_run_20260613_014414
+/home/chuanruo/TGGT/out/baboon_run_20260613_014414
+/home/chuanruo/TGGT/out/baby_buggy_run_20260613_014414
+/home/chuanruo/TGGT/out/backpack_run_20260613_014414
+/home/chuanruo/TGGT/out/bagel_run_20260613_014414
+/home/chuanruo/TGGT/out/baguet_run_20260613_014414
+/home/chuanruo/TGGT/out/balloon_run_20260613_014414
+/home/chuanruo/TGGT/out/bamboo_run_20260613_014414
+/home/chuanruo/TGGT/out/Band_Aid_run_20260613_014414
+/home/chuanruo/TGGT/out/banjo_run_20260613_014414
+/home/chuanruo/TGGT/out/banner_run_20260613_014414
+/home/chuanruo/TGGT/out/barbell_run_20260613_014414
+/home/chuanruo/TGGT/out/barge_run_20260613_014414
+/home/chuanruo/TGGT/out/barrel_run_20260613_014414
+/home/chuanruo/TGGT/out/baseball_bat_run_20260613_014414
+/home/chuanruo/TGGT/out/baseball_glove_run_20260613_014414
+/home/chuanruo/TGGT/out/basketball_run_20260613_014414
+/home/chuanruo/TGGT/out/basket_run_20260613_014414
+/home/chuanruo/TGGT/out/bass_horn_run_20260613_014414
+/home/chuanruo/TGGT/out/bat_(animal)_run_20260613_014414
+/home/chuanruo/TGGT/out/bathrobe_run_20260613_014414
+/home/chuanruo/TGGT/out/bathtub_run_20260613_014414
+/home/chuanruo/TGGT/out/bead_run_20260613_014414
+/home/chuanruo/TGGT/out/beanie_run_20260613_014414
+/home/chuanruo/TGGT/out/bear_run_20260613_014414
+/home/chuanruo/TGGT/out/bedpan_run_20260613_014414
+/home/chuanruo/TGGT/out/bed_run_20260613_014414
+/home/chuanruo/TGGT/out/bedspread_run_20260613_014414
+/home/chuanruo/TGGT/out/beef_(food)_run_20260613_014414
+/home/chuanruo/TGGT/out/beeper_run_20260613_014414
+/home/chuanruo/TGGT/out/beetle_run_20260613_014414
+/home/chuanruo/TGGT/out/bell_run_20260613_014414
+/home/chuanruo/TGGT/out/belt_buckle_run_20260613_014414
+/home/chuanruo/TGGT/out/belt_run_20260613_014414
+/home/chuanruo/TGGT/out/bench_run_20260613_014414
+/home/chuanruo/TGGT/out/billboard_run_20260613_014414
+/home/chuanruo/TGGT/out/binoculars_run_20260613_014414
+/home/chuanruo/TGGT/out/birdcage_run_20260613_014414
+/home/chuanruo/TGGT/out/birdfeeder_run_20260613_014414
+/home/chuanruo/TGGT/out/birdhouse_run_20260613_014414
+/home/chuanruo/TGGT/out/bird_run_20260613_014414
+/home/chuanruo/TGGT/out/birthday_cake_run_20260613_014414
+/home/chuanruo/TGGT/out/birthday_card_run_20260613_014414
+/home/chuanruo/TGGT/out/blackberry_run_20260613_014414
+/home/chuanruo/TGGT/out/blazer_run_20260613_014414
+/home/chuanruo/TGGT/out/blender_run_20260613_014414
+/home/chuanruo/TGGT/out/blimp_run_20260613_014414
+/home/chuanruo/TGGT/out/blouse_run_20260613_014414
+/home/chuanruo/TGGT/out/boat_run_20260613_014414
+/home/chuanruo/TGGT/out/bobbin_run_20260613_014414
+/home/chuanruo/TGGT/out/bob_run_20260613_014414
+/home/chuanruo/TGGT/out/bolo_tie_run_20260613_014414
+/home/chuanruo/TGGT/out/bolt_run_20260613_014414
+/home/chuanruo/TGGT/out/bonnet_run_20260613_014414
+/home/chuanruo/TGGT/out/bookcase_run_20260613_014414
+/home/chuanruo/TGGT/out/booklet_run_20260613_014414
+/home/chuanruo/TGGT/out/boom_microphone_run_20260613_014414
+/home/chuanruo/TGGT/out/boot_run_20260613_014414
+/home/chuanruo/TGGT/out/bottle_cap_run_20260613_014414
+/home/chuanruo/TGGT/out/bottle_opener_run_20260613_014414
+/home/chuanruo/TGGT/out/bouquet_run_20260613_014414
+/home/chuanruo/TGGT/out/bowler_hat_run_20260613_014414
+/home/chuanruo/TGGT/out/bowl_run_20260613_014414
+/home/chuanruo/TGGT/out/bow-tie_run_20260613_014414
+/home/chuanruo/TGGT/out/bow_(weapon)_run_20260613_014414
+/home/chuanruo/TGGT/out/boxing_glove_run_20260613_014414
+/home/chuanruo/TGGT/out/box_run_20260613_014414
+/home/chuanruo/TGGT/out/bracelet_run_20260613_014414
+/home/chuanruo/TGGT/out/brassiere_run_20260613_014414
+/home/chuanruo/TGGT/out/bread-bin_run_20260613_014414
+/home/chuanruo/TGGT/out/breechcloth_run_20260613_014414
+/home/chuanruo/TGGT/out/bridal_gown_run_20260613_014414
+/home/chuanruo/TGGT/out/broach_run_20260613_014414
+/home/chuanruo/TGGT/out/broccoli_run_20260613_014414
+/home/chuanruo/TGGT/out/broom_run_20260613_014414
+/home/chuanruo/TGGT/out/brownie_run_20260613_014414
+/home/chuanruo/TGGT/out/brussels_sprouts_run_20260613_014414
+/home/chuanruo/TGGT/out/bubble_gum_run_20260613_014414
+/home/chuanruo/TGGT/out/bucket_run_20260613_014414
+/home/chuanruo/TGGT/out/bulldog_run_20260613_014414
+/home/chuanruo/TGGT/out/bulldozer_run_20260613_014414
+/home/chuanruo/TGGT/out/bulletproof_vest_run_20260613_014414
+/home/chuanruo/TGGT/out/bullet_train_run_20260613_014414
+/home/chuanruo/TGGT/out/bullhorn_run_20260613_014414
+/home/chuanruo/TGGT/out/bun_run_20260613_014414
+/home/chuanruo/TGGT/out/buoy_run_20260613_014414
+/home/chuanruo/TGGT/out/burrito_run_20260613_014414
+/home/chuanruo/TGGT/out/bus_(vehicle)_run_20260613_014414
+/home/chuanruo/TGGT/out/butter_run_20260613_014414
+/home/chuanruo/TGGT/out/button_run_20260613_014414
+/home/chuanruo/TGGT/out/cabin_car_run_20260613_014414
+/home/chuanruo/TGGT/out/cabinet_run_20260613_014414
+/home/chuanruo/TGGT/out/cab_(taxi)_run_20260613_014414
+/home/chuanruo/TGGT/out/cake_run_20260613_014414
+/home/chuanruo/TGGT/out/calendar_run_20260613_014414
+/home/chuanruo/TGGT/out/calf_run_20260613_014414
+/home/chuanruo/TGGT/out/camcorder_run_20260613_014414
+/home/chuanruo/TGGT/out/camel_run_20260613_014414
+/home/chuanruo/TGGT/out/camera_lens_run_20260613_014414
+/home/chuanruo/TGGT/out/camera_run_20260613_014414
+/home/chuanruo/TGGT/out/camper_(vehicle)_run_20260613_014414
+/home/chuanruo/TGGT/out/candle_holder_run_20260613_014414
+/home/chuanruo/TGGT/out/candle_run_20260613_014414
+/home/chuanruo/TGGT/out/candy_cane_run_20260613_014414
+/home/chuanruo/TGGT/out/canister_run_20260613_014414
+/home/chuanruo/TGGT/out/canoe_run_20260613_014414
+/home/chuanruo/TGGT/out/can_opener_run_20260613_014414
+/home/chuanruo/TGGT/out/canteen_run_20260613_014414
+/home/chuanruo/TGGT/out/cape_run_20260613_014414
+/home/chuanruo/TGGT/out/cappuccino_run_20260613_014414
+/home/chuanruo/TGGT/out/car_battery_run_20260613_014414
+/home/chuanruo/TGGT/out/cardigan_run_20260613_014414
+/home/chuanruo/TGGT/out/cargo_ship_run_20260613_014414
+/home/chuanruo/TGGT/out/carnation_run_20260613_014414
+/home/chuanruo/TGGT/out/carrot_run_20260613_014414
+/home/chuanruo/TGGT/out/carton_run_20260613_014414
+/home/chuanruo/TGGT/out/cart_run_20260613_014414
+/home/chuanruo/TGGT/out/cash_register_run_20260613_014414
+/home/chuanruo/TGGT/out/cassette_run_20260613_014414
+/home/chuanruo/TGGT/out/cast_run_20260613_014414
+/home/chuanruo/TGGT/out/cat_run_20260613_014414
+/home/chuanruo/TGGT/out/cauliflower_run_20260613_014414
+/home/chuanruo/TGGT/out/CD_player_run_20260613_014414
+/home/chuanruo/TGGT/out/celery_run_20260613_014414
+/home/chuanruo/TGGT/out/chair_run_20260613_014414
+/home/chuanruo/TGGT/out/chaise_longue_run_20260613_014414
+/home/chuanruo/TGGT/out/chalice_run_20260613_014414
+/home/chuanruo/TGGT/out/chandelier_run_20260613_014414
+/home/chuanruo/TGGT/out/checkbook_run_20260613_014414
+/home/chuanruo/TGGT/out/checkerboard_run_20260613_014414
+/home/chuanruo/TGGT/out/cherry_run_20260613_014414
+/home/chuanruo/TGGT/out/chessboard_run_20260613_014414
+/home/chuanruo/TGGT/out/chinaware_run_20260613_014414
+/home/chuanruo/TGGT/out/chocolate_bar_run_20260613_014414
+/home/chuanruo/TGGT/out/chocolate_milk_run_20260613_014414
+/home/chuanruo/TGGT/out/chopping_board_run_20260613_014414
+/home/chuanruo/TGGT/out/chopstick_run_20260613_014414
+/home/chuanruo/TGGT/out/Christmas_tree_run_20260613_014414
+/home/chuanruo/TGGT/out/cider_run_20260613_014414
+/home/chuanruo/TGGT/out/cigarette_run_20260613_014414
+/home/chuanruo/TGGT/out/cistern_run_20260613_014414
+/home/chuanruo/TGGT/out/clarinet_run_20260613_014414
+/home/chuanruo/TGGT/out/clasp_run_20260613_014414
+/home/chuanruo/TGGT/out/cleansing_agent_run_20260613_014414
+/home/chuanruo/TGGT/out/cleat_(for_securing_rope)_run_20260613_014414
+/home/chuanruo/TGGT/out/clipboard_run_20260613_014414
+/home/chuanruo/TGGT/out/clippers_(for_plants)_run_20260613_014414
+/home/chuanruo/TGGT/out/clip_run_20260613_014414
+/home/chuanruo/TGGT/out/clock_run_20260613_014414
+/home/chuanruo/TGGT/out/clock_tower_run_20260613_014414
+/home/chuanruo/TGGT/out/clothes_hamper_run_20260613_014414
+/home/chuanruo/TGGT/out/clothespin_run_20260613_014414
+/home/chuanruo/TGGT/out/clutch_bag_run_20260613_014414
+/home/chuanruo/TGGT/out/Ferris_wheel_run_20260613_014414
+/home/chuanruo/TGGT/out/merged_run_20260613_014414
+/home/chuanruo/TGGT/out/Rollerblade_run_20260613_014414
+/home/chuanruo/TGGT/out/Sharpie_run_20260613_014414
+/home/chuanruo/TGGT/out/Tabasco_sauce_run_20260613_014414
+EOF
+
+export CHECKPOINT FRAMES EPOCH OUTPUT SCRIPT_DIR
+
+# Function to process one directory
+process_one() {
+    DIR=$1
+    DATA_PATH="${DIR}/subsets/my_data_125"
+    NAME=$(basename "$DIR")
+    EPOCH_PAD=$(printf "%03d" $EPOCH)
+    FRAMES_SUFFIX=$(echo "$FRAMES" | tr ',' '_')
+    OUTPUT_CHECK="${OUTPUT}/${NAME}/my_data_125_epoch${EPOCH_PAD}/cameras.json"
+    OUTPUT_CHECK_FRAMES="${OUTPUT}/${NAME}/my_data_125_epoch${EPOCH_PAD}_f${FRAMES_SUFFIX}/cameras.json"
+
+    # Skip if already exported (check both with and without frame suffix)
+    if [ -f "$OUTPUT_CHECK" ] || [ -f "$OUTPUT_CHECK_FRAMES" ]; then
+        echo "[SKIP] $NAME - already exported"
+        return
+    fi
+
+    if [ -d "$DATA_PATH" ]; then
+        echo "[START] $NAME"
+        cd "$SCRIPT_DIR"
+        python export_to_viewer.py \
+            --data "$DATA_PATH" \
+            --checkpoint "$CHECKPOINT" \
+            --epoch $EPOCH \
+            --frames "$FRAMES" \
+            --output "$OUTPUT" \
+            --device cpu 2>&1 | grep -E "Wrote|Done|Error|Scene"
+        echo "[DONE] $NAME"
+    else
+        echo "[SKIP] $NAME - no my_data_125"
+    fi
+}
+
+export -f process_one
+
+# Run in parallel
+echo "Starting parallel export with $NUM_PARALLEL jobs..."
+cat /tmp/export_dirs.txt | xargs -P $NUM_PARALLEL -I {} bash -c 'process_one "$@"' _ {}
+
+echo "All exports complete!"

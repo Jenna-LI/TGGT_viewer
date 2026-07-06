@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>3D Viewer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="viewer-page">
+    <header class="top-nav viewer-nav">
+        <div class="nav-left">
+            <a href="index.html" class="back-link">&larr; Gallery</a>
+        </div>
+        <div class="nav-controls">
+            <label class="toggle-label">
+                <input type="checkbox" id="toggle-split-view">
+                Split View
+            </label>
+            <label class="toggle-label" id="sync-label" style="display: none;">
+                <input type="checkbox" id="toggle-sync-cameras">
+                Sync Cameras
+            </label>
+            <div id="loading-indicator" class="loading-spinner" style="display: none;">Loading...</div>
+        </div>
+        <div class="nav-right">
+            <a href="metrics.html" id="metrics-link">Metrics</a>
+        </div>
+    </header>
+
+    <div class="viewer-layout">
+        <!-- Left Panel -->
+        <div class="viewer-panel" id="panel-left">
+            <div class="panel-header">
+                <div class="panel-title">Left View</div>
+                <div class="panel-config">
+                    <select id="left-object-select" class="config-select" title="Object"></select>
+                    <select id="left-exp-select" class="config-select" title="Experiment"></select>
+                    <select id="left-epoch-select" class="config-select" title="Epoch"></select>
+                    <select id="left-split-select" class="config-select" title="Split">
+                        <option value="all">All</option>
+                        <option value="train" selected>Train</option>
+                        <option value="val">Val</option>
+                    </select>
+                </div>
+                <div class="panel-config">
+                    <select id="left-run-select" class="config-select" title="Run"></select>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="canvas-left"></canvas>
+            </div>
+            <div class="panel-controls">
+                <button id="left-reset-view" class="btn-small">Reset View</button>
+                <select id="left-pointcloud-mode" class="config-select" title="Point Cloud Source">
+                    <option value="pointmap">Point Map</option>
+                    <option value="pred_depth_pred_pose">Pred Depth + Pred Pose</option>
+                    <option value="pred_depth_gt_pose">Pred Depth + GT Pose</option>
+                    <option value="gt_depth_pred_pose">GT Depth + Pred Pose</option>
+                    <option value="gt_depth_gt_pose">GT Depth + GT Pose</option>
+                </select>
+                <label><input type="checkbox" id="left-show-gt-points"> GT Pts</label>
+                <label><input type="checkbox" id="left-show-pred" checked> Pred Cam</label>
+                <label><input type="checkbox" id="left-show-gt" checked> GT Cam</label>
+                <label><input type="checkbox" id="left-show-lines" checked> Lines</label>
+            </div>
+            <div class="panel-controls">
+                <label>Pt: <input type="range" id="left-point-size" min="0.1" max="10" value="1" step="0.1"></label>
+                <label>Pt Conf: <input type="number" id="left-point-conf-threshold" value="2.5" min="0" step="0.5" class="conf-input"></label>
+                <label>Depth Conf: <input type="number" id="left-depth-conf-threshold" value="2.5" min="0" step="0.5" class="conf-input"></label>
+            </div>
+        </div>
+
+        <!-- Right Panel (split view) -->
+        <div class="viewer-panel" id="panel-right" style="display: none;">
+            <div class="panel-header">
+                <div class="panel-title">Right View</div>
+                <div class="panel-config">
+                    <select id="right-object-select" class="config-select" title="Object"></select>
+                    <select id="right-exp-select" class="config-select" title="Experiment"></select>
+                    <select id="right-epoch-select" class="config-select" title="Epoch"></select>
+                    <select id="right-split-select" class="config-select" title="Split">
+                        <option value="all">All</option>
+                        <option value="train" selected>Train</option>
+                        <option value="val">Val</option>
+                    </select>
+                </div>
+                <div class="panel-config">
+                    <select id="right-run-select" class="config-select" title="Run"></select>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="canvas-right"></canvas>
+            </div>
+            <div class="panel-controls">
+                <button id="right-reset-view" class="btn-small">Reset View</button>
+                <select id="right-pointcloud-mode" class="config-select" title="Point Cloud Source">
+                    <option value="pointmap">Point Map</option>
+                    <option value="pred_depth_pred_pose">Pred Depth + Pred Pose</option>
+                    <option value="pred_depth_gt_pose">Pred Depth + GT Pose</option>
+                    <option value="gt_depth_pred_pose">GT Depth + Pred Pose</option>
+                    <option value="gt_depth_gt_pose">GT Depth + GT Pose</option>
+                </select>
+                <label><input type="checkbox" id="right-show-gt-points"> GT Pts</label>
+                <label><input type="checkbox" id="right-show-pred" checked> Pred Cam</label>
+                <label><input type="checkbox" id="right-show-gt" checked> GT Cam</label>
+                <label><input type="checkbox" id="right-show-lines" checked> Lines</label>
+            </div>
+            <div class="panel-controls">
+                <label>Pt: <input type="range" id="right-point-size" min="0.1" max="10" value="1" step="0.1"></label>
+                <label>Pt Conf: <input type="number" id="right-point-conf-threshold" value="2.5" min="0" step="0.5" class="conf-input"></label>
+                <label>Depth Conf: <input type="number" id="right-depth-conf-threshold" value="2.5" min="0" step="0.5" class="conf-input"></label>
+            </div>
+        </div>
+
+        <!-- Side panel -->
+        <aside class="side-panel">
+            <div class="panel-info">
+                <h3>Current Selection</h3>
+                <div id="selection-info"></div>
+            </div>
+            <div class="metrics-section">
+                <h3>Metrics Summary</h3>
+                <div class="metrics-compare">
+                    <div class="metrics-col" id="metrics-left">
+                        <div class="metrics-col-title">Left</div>
+                        <div class="metrics-values"></div>
+                    </div>
+                    <div class="metrics-col" id="metrics-right" style="display:none;">
+                        <div class="metrics-col-title">Right</div>
+                        <div class="metrics-values"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="metrics-section" id="per-frame-metrics-section">
+                <h3>Per-Frame Errors</h3>
+                <div class="per-frame-table-container">
+                    <table id="per-frame-metrics-table" class="per-frame-table">
+                        <thead>
+                            <tr id="per-frame-header"></tr>
+                        </thead>
+                        <tbody id="per-frame-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="selected-view-section" id="selected-view-section" style="display:none;">
+                <h3>Selected View: <span id="selected-view-id"></span></h3>
+                <div id="source-image-path" style="font-size:12px; color:#ff0; background:#333; padding:8px; word-break:break-all; margin-bottom:8px; font-family:monospace; white-space:pre-wrap;"></div>
+                <div class="view-images">
+                    <div class="view-image-item">
+                        <img id="view-rgb" src="" alt="RGB">
+                        <span>RGB</span>
+                    </div>
+                    <div class="view-image-item">
+                        <img id="view-depth" src="" alt="Depth">
+                        <span>Depth</span>
+                    </div>
+                </div>
+                <button id="exit-view-btn" class="btn-small">Exit View</button>
+            </div>
+            <div class="frame-section">
+                <h3>Frames</h3>
+                <div class="frame-buttons">
+                    <button id="btn-all" class="btn-small">All</button>
+                    <button id="btn-none" class="btn-small">None</button>
+                    <button id="btn-train" class="btn-small">Train</button>
+                    <button id="btn-val" class="btn-small">Val</button>
+                </div>
+                <div id="frame-list" class="frame-list"></div>
+            </div>
+        </aside>
+    </div>
+
+    <div id="lightbox" class="lightbox" style="display: none;">
+        <div class="lightbox-content">
+            <button class="lightbox-close">&times;</button>
+            <img id="lightbox-image" src="" alt="">
+            <div id="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+<script type="module" src="js/viewer.js?v=6"></script>
+</body>
+</html>

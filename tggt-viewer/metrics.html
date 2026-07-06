@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics Comparison</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        .metrics-page {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .chart-section {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-section h2 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .chart-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-group label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+        .control-group select {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            transition: all 0.15s;
+        }
+        .chip:hover {
+            background: #f0f0f0;
+        }
+        .chip.checked {
+            background: #e0f2fe;
+            border-color: #0ea5e9;
+        }
+        .chip input {
+            margin: 0;
+        }
+        .chip .color-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .chart-container {
+            height: 350px;
+        }
+        .chart-container canvas {
+            max-height: 100%;
+        }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .stat-card .label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="top-nav">
+        <div class="nav-left">
+            <a href="index.html" class="back-link">&larr; Gallery</a>
+            <h1>Metrics</h1>
+        </div>
+        <nav>
+            <a href="index.html">Gallery</a>
+            <a href="metrics.html" class="active">Metrics</a>
+        </nav>
+    </header>
+
+    <div id="loading-state" class="loading-message">Loading metrics...</div>
+
+    <div id="metrics-content" class="metrics-page" style="display: none;">
+
+        <!-- Global: Checkpoint selector -->
+        <section class="chart-section" style="padding: 15px;">
+            <div class="chart-controls" style="margin-bottom: 0;">
+                <div class="control-group">
+                    <label>Checkpoints:</label>
+                    <div id="checkpoint-checkboxes" class="checkbox-group"></div>
+                </div>
+                <div id="checkpoint-stats" style="font-size: 12px; color: #666; margin-left: auto;"></div>
+            </div>
+        </section>
+
+        <!-- Section 1: Tag Comparison (global) -->
+        <section class="chart-section">
+            <h2>Average Metrics by Tag</h2>
+            <div class="chart-controls">
+                <div class="control-group">
+                    <label>Tags:</label>
+                    <div id="tag-checkboxes" class="checkbox-group"></div>
+                </div>
+                <div class="control-group">
+                    <label>Metrics:</label>
+                    <div id="metric-checkboxes" class="checkbox-group"></div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="tag-comparison-chart"></canvas>
+            </div>
+            <div id="tag-stats" class="stats-row"></div>
+        </section>
+
+        <!-- Section 2: Per-Object Breakdown -->
+        <section class="chart-section">
+            <h2>Per-Object Breakdown</h2>
+            <div class="chart-controls">
+                <div class="control-group">
+                    <label>Objects:</label>
+                    <div id="object-checkboxes" class="checkbox-group" style="max-height: 100px; overflow-y: auto;"></div>
+                </div>
+            </div>
+            <div class="chart-controls">
+                <div class="control-group">
+                    <label>Tags:</label>
+                    <div id="object-tag-checkboxes" class="checkbox-group"></div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="object-chart"></canvas>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="js/metrics.js?v=30"></script>
+</body>
+</html>
